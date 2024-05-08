@@ -1,6 +1,3 @@
-#include <iostream>
-#include <string>
-#include <algorithm>
 #include "computor.hpp"
 
 bool	valid_chars(const char *s)
@@ -215,7 +212,55 @@ void	simplify_equation(Liste *left, Liste *right)
 	delete_liste(right);
 }
 
-void	reduce_form(Liste *equation)
+int	print_reduced_form(Liste *equation)
+{
+	Terme	*current = equation->first;
+	int		max_exp = 0;
+	bool	neg_coeff = false;
+	std::stringstream tmp;
+	std::string temp;
+
+	std::cout << "Reduced form: ";
+	while (current != NULL)
+	{
+		if (max_exp < current->exposant)
+			max_exp = current->exposant;
+		if (neg_coeff == false)
+			std::cout << current->coeff << " * X^" << current->exposant;
+		else
+		{
+			tmp << current->coeff;
+			temp = tmp.str();
+			std::cout << temp.substr(1, temp.length() - 1) << " * X^" << current->exposant;
+			tmp.str("");
+			temp.clear();
+		}
+		if (current->next != NULL)
+		{
+			if (current->next->coeff > 0)
+			{
+				std::cout << " + ";
+				neg_coeff = false;
+			}
+			else
+			{
+				std::cout << " - ";
+				neg_coeff = true;
+			}
+		}
+		current = current->next;
+	}
+	std::cout << " = 0" << std::endl << "Polynomial degree: " << max_exp << std::endl;
+	if (max_exp > 2)
+	{
+		std::cout << "The polynomial degree is strictly greater than 2, I can't solve." << std::endl;
+		delete_liste(equation);
+		exit(EXIT_SUCCESS);
+	}
+	return max_exp;
+}
+
+int	reduce_form(Liste *equation)
 {
 	Terme	*current = equation->first;
 	Terme	*temp;
@@ -239,14 +284,40 @@ void	reduce_form(Liste *equation)
 		}
 		current = current->next;
 	}
+	return (print_reduced_form(equation));
 }
 
-// void	solve_equation(Liste *equation)
-// {
+void	solve_X0(Liste *equation)
+{
+	if (equation->first->coeff == 0)
+		std::cout << "Each real number is a solution" << std::endl;
+	else
+		std::cout << "This polynomial equation is impossible" << std::endl;
+}
 
-// }
+void	solve_X1(Liste *equation)
+{
+	Terme	*current = equation->first;
 
+	while (current != NULL)
+	{
 
+		current = current->next;
+	}
+}
+
+void	solve_X2(Liste *equation)
+{
+	Terme	*current = equation->first;
+	while (current != NULL)
+	{
+		
+		current = current->next;
+	}
+}
+
+//!!!!!!!!!!!   0=0 crash      !!!!!!!!!!!
+//!!!!!!!!!!!   2X+3=2X+3 WRONG OUTPUT      !!!!!!!!!!
 int	main(int ac, char **av)
 {
 	std::string	equation;
@@ -276,12 +347,19 @@ int	main(int ac, char **av)
 
 	simplify_equation(left, right);
 
-	reduce_form(left);
-	
-	print_liste(left);
-
-	// solve_equation(left);
+	switch (reduce_form(left))
+	{
+	case 0:
+		solve_X0(left);
+		break;
+	case 1:
+		solve_X1(left);
+		break;
+	default:
+		solve_X2(left);
+		break;
+	}
 	delete_liste(left);
 
-
+	return 0;
 }

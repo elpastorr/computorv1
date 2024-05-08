@@ -1,5 +1,10 @@
 #ifndef COMPUTOR_HPP
-#define COMPUTOR_HPP
+# define COMPUTOR_HPP
+
+# include <sstream>
+# include <iostream>
+# include <string>
+# include <algorithm>
 
 typedef struct Terme {
 	std::string elem;

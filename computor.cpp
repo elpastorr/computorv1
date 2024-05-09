@@ -68,14 +68,13 @@ void	prepare_equation(std::string &raw)
 Liste	*init_liste()
 {
 	Liste	*liste = new Liste();
-	Terme	*terme = NULL;
 
 	if (liste == NULL)
 	{
 		std::cout << "EXIT: malloc problem" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	liste->first = terme;
+	liste->first = NULL;
 
 	return liste;
 }
@@ -126,6 +125,33 @@ void	add_elem(Liste *liste, std::string elem)
 		liste->first = new_terme;
 	}
 }
+
+// void	remove_elem(Liste *liste, Terme *terme)
+// {
+// 	Terme	*current = liste->first;
+// 	Terme	*tmp;
+
+// 	if (current == NULL)
+// 		return;
+// 	if (current == terme)
+// 	{
+// 		liste->first = current->next;
+// 		delete current;
+// 	}
+// 	else
+// 	{
+// 		while (current->next != NULL && current->next != terme)
+// 			current = current->next;
+// 	}
+// 	if (current->next == NULL)
+// 		std::cout << "Removing Terme but it is not in Liste" << std::endl;
+// 	else
+// 	{
+// 		tmp = current->next->next;
+// 		delete current->next;
+// 		current->next = tmp;
+// 	}
+// }
 
 void	move_elem(Liste *liste, Terme terme)
 {
@@ -217,39 +243,46 @@ int	print_reduced_form(Liste *equation)
 	Terme	*current = equation->first;
 	int		max_exp = 0;
 	bool	neg_coeff = false;
+	bool	writed = false;
 	std::stringstream tmp;
 	std::string temp;
 
 	std::cout << "Reduced form: ";
 	while (current != NULL)
 	{
-		if (max_exp < current->exposant)
-			max_exp = current->exposant;
-		if (neg_coeff == false)
-			std::cout << current->coeff << " * X^" << current->exposant;
-		else
+		if (current->coeff != 0)
 		{
-			tmp << current->coeff;
-			temp = tmp.str();
-			std::cout << temp.substr(1, temp.length() - 1) << " * X^" << current->exposant;
-			tmp.str("");
-			temp.clear();
-		}
-		if (current->next != NULL)
-		{
-			if (current->next->coeff > 0)
-			{
-				std::cout << " + ";
-				neg_coeff = false;
-			}
+			if (max_exp < current->exposant)
+				max_exp = current->exposant;
+			if (neg_coeff == false)
+				std::cout << current->coeff << " * X^" << current->exposant;
 			else
 			{
-				std::cout << " - ";
-				neg_coeff = true;
+				tmp << current->coeff;
+				temp = tmp.str();
+				std::cout << temp.substr(1, temp.length() - 1) << " * X^" << current->exposant;
+				tmp.str("");
+				temp.clear();
 			}
+			if (current->next != NULL)
+			{
+				if (current->next->coeff > 0)
+				{
+					std::cout << " + ";
+					neg_coeff = false;
+				}
+				else
+				{
+					std::cout << " - ";
+					neg_coeff = true;
+				}
+			}
+			writed = true;
 		}
 		current = current->next;
 	}
+	if (writed == false)
+		std::cout << "0";
 	std::cout << " = 0" << std::endl << "Polynomial degree: " << max_exp << std::endl;
 	if (max_exp > 2)
 	{
@@ -284,40 +317,94 @@ int	reduce_form(Liste *equation)
 		}
 		current = current->next;
 	}
+	// current = equation->first;
+	// while (current != NULL)
+	// {
+	// 	if (current->coeff == 0)
+	// 		remove_elem(equation, current);
+	// 	current = current->next;
+	// }
 	return (print_reduced_form(equation));
 }
 
 void	solve_X0(Liste *equation)
 {
-	if (equation->first->coeff == 0)
-		std::cout << "Each real number is a solution" << std::endl;
-	else
-		std::cout << "This polynomial equation is impossible" << std::endl;
+	Terme	*current = equation->first;
+	while (current != NULL)
+	{
+		if (current->exposant == 0)
+		{
+			if (current->coeff == 0)
+				std::cout << "Each real number is a solution" << std::endl;
+			else
+				std::cout << "This polynomial equation is impossible" << std::endl;			
+		}
+		current = current->next;
+	}
 }
 
 void	solve_X1(Liste *equation)
 {
 	Terme	*current = equation->first;
+	float	a;
+	float	b;
+	float	x;
 
 	while (current != NULL)
 	{
-
+		if (current->exposant == 1)
+			a = current->coeff;
+		else
+			b = current->coeff;
 		current = current->next;
 	}
+	std::cout << "aX + b; a = " << a << " b = " << b << "; X = -b / a" << std::endl;
+	x = -b / a;
+	std::cout << "The solution is:" << std::endl << x << std::endl;
 }
 
 void	solve_X2(Liste *equation)
 {
 	Terme	*current = equation->first;
+	float	a;
+	float	b;
+	float	c;
+	float	delta;
+	float	x1;
+	float	x2;
+
 	while (current != NULL)
 	{
-		
+		if (current->exposant == 2)
+			a = current->coeff;
+		else if (current->exposant == 1)
+			b = current->coeff;
+		else
+			c = current->coeff;
 		current = current->next;
+	}
+	std::cout << "aX^2 + bX + c; a = " << a << " b = " << b << " c = " << c << "; delta = b^2 - 4ac" << std::endl;
+	delta = (b * b) - (4 * a * c);
+	std::cout << "delta = " << delta << std::endl;
+	if (delta > 0)
+	{
+		// x1 = (-b + sqrt(delta)) / (2 * a); //SQRT A FAIRE !!!!!!!!!
+		// x2 = (-b - sqrt(delta)) / (2 * a);
+		std::cout << "Discriminant is strictly positive, the two solutions are:" << std::endl;
+		// std::cout << x1 << std::endl << x2 << std::endl;
+	}
+	else if (delta == 0)
+	{
+		x1 = -b / (2 * a);
+		std::cout << "Discriminant is 0, the solution is:" << std::endl << x1 << std::endl;
+	}
+	else
+	{
+		std::cout << "Discriminant is strictly negative, the two complex solutions are:" << std::endl;
+		// A FAIRE !!!!!!!!!!!!!!!!
 	}
 }
 
-//!!!!!!!!!!!   0=0 crash      !!!!!!!!!!!
-//!!!!!!!!!!!   2X+3=2X+3 WRONG OUTPUT      !!!!!!!!!!
 int	main(int ac, char **av)
 {
 	std::string	equation;

@@ -1,5 +1,15 @@
 #include "computor.hpp"
 
+double ft_sqrt(double number)
+{
+    double precision = 0.00001;
+    double sqrt = number;
+
+    while ((sqrt - number / sqrt) > precision) 
+        sqrt = (sqrt + number / sqrt) / 2;
+    return sqrt;
+}
+
 bool	valid_chars(const char *s)
 {
 	int	i = 0;
@@ -79,6 +89,20 @@ Liste	*init_liste()
 	return liste;
 }
 
+void	delete_liste(Liste *liste)
+{
+	Terme	*current = liste->first;
+	Terme	*tmp;
+
+	while (current != NULL)
+	{
+		tmp = current;
+		current = current->next;
+		delete tmp;
+	}
+	delete liste;
+}
+
 void	add_elem(Liste *liste, std::string elem)
 {
 	Terme	*new_terme = new Terme();
@@ -113,6 +137,8 @@ void	add_elem(Liste *liste, std::string elem)
 	if (!valid_coeff(coeff))
 	{
 		std::cout << "EXIT: coeff [" << coeff << "] is invalid" << std::endl;
+		delete new_terme;
+		delete_liste(liste);
 		exit(EXIT_FAILURE);
 	}
 	new_terme->exposant = std::stoi(exp);
@@ -177,20 +203,6 @@ Liste	*create_liste(std::string str)
 	temp = str.substr(0, str.find(" ", 1));
 	add_elem(liste, temp);
 	return liste;
-}
-
-void	delete_liste(Liste *liste)
-{
-	Terme	*current = liste->first;
-	Terme	*tmp;
-
-	while (current != NULL)
-	{
-		tmp = current;
-		current = current->next;
-		delete tmp;
-	}
-	delete liste;
 }
 
 void	print_liste(Liste *liste)
@@ -317,13 +329,6 @@ int	reduce_form(Liste *equation)
 		}
 		current = current->next;
 	}
-	// current = equation->first;
-	// while (current != NULL)
-	// {
-	// 	if (current->coeff == 0)
-	// 		remove_elem(equation, current);
-	// 	current = current->next;
-	// }
 	return (print_reduced_form(equation));
 }
 
@@ -372,36 +377,60 @@ void	solve_X2(Liste *equation)
 	float	delta;
 	float	x1;
 	float	x2;
+	double	sqrt;
+	bool	b_set = false;
+	bool	c_set = false;
 
 	while (current != NULL)
 	{
 		if (current->exposant == 2)
 			a = current->coeff;
 		else if (current->exposant == 1)
+		{
 			b = current->coeff;
+			b_set = true;
+		}
 		else
+		{
 			c = current->coeff;
+			c_set = true;
+		}
 		current = current->next;
 	}
+	if (b_set == false)
+		b = 0.0;
+	if (c_set == false)
+		c = 0.0;
+
 	std::cout << "aX^2 + bX + c; a = " << a << " b = " << b << " c = " << c << "; delta = b^2 - 4ac" << std::endl;
+
 	delta = (b * b) - (4 * a * c);
 	std::cout << "delta = " << delta << std::endl;
 	if (delta > 0)
 	{
-		// x1 = (-b + sqrt(delta)) / (2 * a); //SQRT A FAIRE !!!!!!!!!
-		// x2 = (-b - sqrt(delta)) / (2 * a);
+		sqrt = static_cast<float>(ft_sqrt(static_cast<double>(delta)));
+		std::cout << "sqrt(delta) = " << sqrt << std::endl;
+		x1 = (-b + sqrt) / (2 * a);
+		x2 = (-b - sqrt) / (2 * a);
 		std::cout << "Discriminant is strictly positive, the two solutions are:" << std::endl;
-		// std::cout << x1 << std::endl << x2 << std::endl;
+		std::cout << x1 << std::endl << x2 << std::endl;
 	}
 	else if (delta == 0)
 	{
-		x1 = -b / (2 * a);
+		if (b == 0)
+			x1 = 0;
+		else
+			x1 = -b / (2 * a);
 		std::cout << "Discriminant is 0, the solution is:" << std::endl << x1 << std::endl;
 	}
 	else
 	{
+		sqrt = static_cast<float>(ft_sqrt(static_cast<double>(-delta)));
+		std::cout << "sqrt(delta) = " << sqrt << "i" << std::endl;
+
 		std::cout << "Discriminant is strictly negative, the two complex solutions are:" << std::endl;
-		// A FAIRE !!!!!!!!!!!!!!!!
+		std::cout << (b / (2 * a)) << " + " << (sqrt / (2 * a)) << "i" << std::endl;
+		std::cout << (b / (2 * a)) << " - " << (sqrt / (2 * a)) << "i" << std::endl;
 	}
 }
 
@@ -450,3 +479,6 @@ int	main(int ac, char **av)
 
 	return 0;
 }
+//LEaKS
+// "0=++85 X^1-1-9-5-X"
+// "++85 X^1-1-9-5-X =0"

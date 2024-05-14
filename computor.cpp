@@ -2,12 +2,92 @@
 
 double ft_sqrt(double number)
 {
-    double precision = 0.00001;
-    double sqrt = number;
+	double precision = 0.00001;
+	double sqrt = number;
 
-    while ((sqrt - number / sqrt) > precision) 
-        sqrt = (sqrt + number / sqrt) / 2;
-    return sqrt;
+	while ((sqrt - number / sqrt) > precision) 
+		sqrt = (sqrt + number / sqrt) / 2;
+	return sqrt;
+}
+
+bool	is_whole(float num)
+{
+	std::string	number = std::to_string(num);
+	bool	after_point = false;
+	for (std::string::iterator it = number.begin(); it != number.end(); it++)
+	{
+		if (*it == '.')
+			after_point = true;
+		else if (after_point == true && *it != '0')
+			return 0;
+	}
+	return 1;
+}
+
+int	ft_pgcd(int a, int b)
+{
+	int	i = 2;
+
+	if (a < 0)
+		a = -a;
+	if (b < 0)
+		b = -b;
+	while (i <= a && i <= b)
+	{
+		if (a % i == 0 && b % i == 0)
+			return (ft_pgcd(a / i, b / i) * i);
+		i++;
+	}
+	return 1;
+}
+
+void	print_fraction(int b, int a)
+{
+	if (b == 0)
+		b = -1;
+	int	pgcd = ft_pgcd(b, a);
+	if (a < 0)
+	{
+		if (b < 0)
+			std::cout << -b / pgcd << " / " << -a / pgcd;
+		else
+			std::cout << "-" << b / pgcd << " / " << -a / pgcd;
+	}
+	else
+		std::cout << b / pgcd << " / " << a / pgcd;
+
+}
+
+void	print_complex(float a, float b, double sqrt)
+{
+	if (is_whole(b / 2 * a) || !is_whole(2 * a) || !is_whole(b))
+		std::cout << b / 2 * a;
+	else
+	{
+		print_fraction(static_cast<int>(b), static_cast<int>(2 * a));
+	}
+	std::cout << " + ";
+	if (is_whole(sqrt / 2 * a) || !is_whole(2 * a) || !is_whole(sqrt))
+		std::cout << sqrt / 2 * a << "i" << std::endl;
+	else
+	{
+		print_fraction(static_cast<int>(b), static_cast<int>(2 * a));
+		std::cout << std::endl;
+	}
+	if (is_whole(b / 2 * a) || !is_whole(2 * a) || !is_whole(b))
+		std::cout << b / 2 * a;
+	else
+	{
+		print_fraction(static_cast<int>(b), static_cast<int>(2 * a));
+	}
+	std::cout << " - ";
+	if (is_whole(sqrt / 2 * a) || !is_whole(2 * a) || !is_whole(sqrt))
+		std::cout << sqrt / 2 * a << "i"  << std::endl;
+	else
+	{
+		print_fraction(static_cast<int>(b), static_cast<int>(2 * a));
+		std::cout << std::endl;
+	}
 }
 
 bool	valid_chars(const char *s)
@@ -67,7 +147,6 @@ void	replace_all(std::string &src, std::string from, std::string to)
 
 void	prepare_equation(std::string &raw)
 {
-	std::string	equation;
 	raw.erase(std::remove(raw.begin(), raw.end(), ' '), raw.end());
 	replace_all(raw, "+", " +");
 	replace_all(raw, "-", " -");
@@ -81,7 +160,7 @@ Liste	*init_liste()
 
 	if (liste == NULL)
 	{
-		std::cout << "EXIT: malloc problem" << std::endl;
+		std::cout << "ERROR: malloc problem" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	liste->first = NULL;
@@ -91,6 +170,8 @@ Liste	*init_liste()
 
 void	delete_liste(Liste *liste)
 {
+	if (liste == NULL)
+		return;
 	Terme	*current = liste->first;
 	Terme	*tmp;
 
@@ -103,7 +184,7 @@ void	delete_liste(Liste *liste)
 	delete liste;
 }
 
-void	add_elem(Liste *liste, std::string elem)
+int	add_elem(Liste *liste, std::string elem)
 {
 	Terme	*new_terme = new Terme();
 	std::string	exp = "0";
@@ -111,7 +192,7 @@ void	add_elem(Liste *liste, std::string elem)
 
 	if (liste == NULL || new_terme == NULL)
 	{
-		std::cout << "EXIT: malloc problem" << std::endl;
+		std::cout << "ERROR: malloc problem" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	
@@ -136,10 +217,10 @@ void	add_elem(Liste *liste, std::string elem)
 
 	if (!valid_coeff(coeff))
 	{
-		std::cout << "EXIT: coeff [" << coeff << "] is invalid" << std::endl;
+		std::cout << "ERROR: coeff [" << coeff << "] is invalid" << std::endl;
 		delete new_terme;
 		delete_liste(liste);
-		exit(EXIT_FAILURE);
+		return 1;
 	}
 	new_terme->exposant = std::stoi(exp);
 	new_terme->coeff = std::stof(coeff);
@@ -150,34 +231,8 @@ void	add_elem(Liste *liste, std::string elem)
 		new_terme->next = liste->first;
 		liste->first = new_terme;
 	}
+	return 0;
 }
-
-// void	remove_elem(Liste *liste, Terme *terme)
-// {
-// 	Terme	*current = liste->first;
-// 	Terme	*tmp;
-
-// 	if (current == NULL)
-// 		return;
-// 	if (current == terme)
-// 	{
-// 		liste->first = current->next;
-// 		delete current;
-// 	}
-// 	else
-// 	{
-// 		while (current->next != NULL && current->next != terme)
-// 			current = current->next;
-// 	}
-// 	if (current->next == NULL)
-// 		std::cout << "Removing Terme but it is not in Liste" << std::endl;
-// 	else
-// 	{
-// 		tmp = current->next->next;
-// 		delete current->next;
-// 		current->next = tmp;
-// 	}
-// }
 
 void	move_elem(Liste *liste, Terme terme)
 {
@@ -198,30 +253,32 @@ Liste	*create_liste(std::string str)
 	{
 		temp = str.substr(0, str.find(" ", 1));
 		str.erase(0, str.find(" ", 1) + 1);
-		add_elem(liste, temp);
+		if (add_elem(liste, temp))
+			return NULL;
 	}
 	temp = str.substr(0, str.find(" ", 1));
-	add_elem(liste, temp);
+	if (add_elem(liste, temp))
+		return NULL;
 	return liste;
 }
 
-void	print_liste(Liste *liste)
-{
-	if (liste == NULL)
-	{
-		std::cout << "EXIT: print liste NULL" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+// void	print_liste(Liste *liste)
+// {
+// 	if (liste == NULL)
+// 	{
+// 		std::cout << "ERROR: print liste NULL" << std::endl;
+// 		exit(EXIT_FAILURE);
+// 	}
 
-	Terme *current = liste->first;
+// 	Terme *current = liste->first;
 
-	while (current != NULL)
-	{
-		std::cout << current->coeff << "X^" << current->exposant << " (+)";
-		current = current->next;
-	}
-	std::cout << "\nNULL" << std::endl;
-}
+// 	while (current != NULL)
+// 	{
+// 		std::cout << current->coeff << "X^" << current->exposant << " (+)";
+// 		current = current->next;
+// 	}
+// 	std::cout << "\nNULL" << std::endl;
+// }
 
 bool	check_sides(std::string left, std::string right)
 {
@@ -299,8 +356,7 @@ int	print_reduced_form(Liste *equation)
 	if (max_exp > 2)
 	{
 		std::cout << "The polynomial degree is strictly greater than 2, I can't solve." << std::endl;
-		delete_liste(equation);
-		exit(EXIT_SUCCESS);
+		return 42;
 	}
 	return max_exp;
 }
@@ -364,8 +420,20 @@ void	solve_X1(Liste *equation)
 		current = current->next;
 	}
 	std::cout << "aX + b; a = " << a << " b = " << b << "; X = -b / a" << std::endl;
-	x = -b / a;
-	std::cout << "The solution is:" << std::endl << x << std::endl;
+	std::cout << "The solution is:" << std::endl;
+	if (b == 0)
+		x = 0;
+	else
+	{
+		x = -b / a;
+		if (is_whole(x) || !is_whole(a) || !is_whole(b))
+			std::cout << x << std::endl;
+		else
+		{
+			print_fraction(static_cast<int>(-b), static_cast<int>(a));
+			std::cout << std::endl;
+		}
+	}
 }
 
 void	solve_X2(Liste *equation)
@@ -413,24 +481,43 @@ void	solve_X2(Liste *equation)
 		x1 = (-b + sqrt) / (2 * a);
 		x2 = (-b - sqrt) / (2 * a);
 		std::cout << "Discriminant is strictly positive, the two solutions are:" << std::endl;
-		std::cout << x1 << std::endl << x2 << std::endl;
+		if (is_whole(x1) || !is_whole(2 * a) || !is_whole(-b + sqrt))
+			std::cout << x1 << std::endl;
+		else
+		{
+			print_fraction(static_cast<int>(-b + sqrt), static_cast<int>(2 * a));
+			std::cout << std::endl;
+		}
+		if (is_whole(x2) || !is_whole(2 * a) || !is_whole(-b - sqrt))
+			std::cout << x2 << std::endl;
+		else
+		{
+			print_fraction(static_cast<int>(-b - sqrt), static_cast<int>(2 * a));
+			std::cout << std::endl;
+		}
 	}
 	else if (delta == 0)
 	{
 		if (b == 0)
 			x1 = 0;
 		else
-			x1 = -b / (2 * a);
-		std::cout << "Discriminant is 0, the solution is:" << std::endl << x1 << std::endl;
+			x1 = -b / a;
+		std::cout << "The solution is:" << std::endl;
+		if (is_whole(x1) || !is_whole(a) || !is_whole(b))
+			std::cout << x1 << std::endl;
+		else
+		{
+			print_fraction(static_cast<int>(-b), static_cast<int>(a));
+			std::cout << std::endl;
+		}
 	}
 	else
 	{
 		sqrt = static_cast<float>(ft_sqrt(static_cast<double>(-delta)));
 		std::cout << "sqrt(delta) = " << sqrt << "i" << std::endl;
-
 		std::cout << "Discriminant is strictly negative, the two complex solutions are:" << std::endl;
-		std::cout << (b / (2 * a)) << " + " << (sqrt / (2 * a)) << "i" << std::endl;
-		std::cout << (b / (2 * a)) << " - " << (sqrt / (2 * a)) << "i" << std::endl;
+
+		print_complex(a, b, sqrt);
 	}
 }
 
@@ -459,8 +546,14 @@ int	main(int ac, char **av)
 	if (!check_sides(left_side, right_side))
 		return 1;
 	left = create_liste(left_side);
+	if (left == NULL)
+		return 1;
 	right = create_liste(right_side);
-
+	if (right == NULL)
+	{
+		delete_liste(left);
+		return 1;
+	}
 	simplify_equation(left, right);
 
 	switch (reduce_form(left))
@@ -471,14 +564,15 @@ int	main(int ac, char **av)
 	case 1:
 		solve_X1(left);
 		break;
-	default:
+	case 2:
 		solve_X2(left);
+		break;
+	default:
 		break;
 	}
 	delete_liste(left);
 
 	return 0;
 }
-//LEaKS
-// "0=++85 X^1-1-9-5-X"
-// "++85 X^1-1-9-5-X =0"
+
+// FQIRE  "9X^2 + 5X + 0.25 = 0"

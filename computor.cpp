@@ -1,12 +1,23 @@
 #include "computor.hpp"
 
-double ft_sqrt(double number)
+double	ft_abs(double nb)
 {
-	double precision = 0.00001;
-	double sqrt = number;
+	if (nb < 0)
+		return (-nb);
+	return nb;
+}
 
-	while ((sqrt - number / sqrt) > precision) 
-		sqrt = (sqrt + number / sqrt) / 2;
+double	ft_sqrt(double number)
+{
+	double	precision = 0.00001;
+	double	estimation = number;
+	double	sqrt = (estimation + number / estimation) / 2;
+
+	while (ft_abs(estimation - sqrt) >= precision)
+	{
+		estimation = sqrt;
+		sqrt = (estimation + number / estimation) / 2;
+	}
 	return sqrt;
 }
 
@@ -523,54 +534,55 @@ void	solve_X2(Liste *equation)
 
 int	main(int ac, char **av)
 {
-	std::string	equation;
-	std::string	left_side;
-	std::string	right_side;
-	Liste	*left;
-	Liste	*right;
+	std::cout << ft_sqrt(37) << std::endl;
+// 	std::string	equation;
+// 	std::string	left_side;
+// 	std::string	right_side;
+// 	Liste	*left;
+// 	Liste	*right;
 	
-	if (ac < 2)
-	{
-		std::cout << "Error: no argument given.." << std::endl;
-		return (1);
-	}
-	equation = av[1];
-	prepare_equation(equation);
+// 	if (ac < 2)
+// 	{
+// 		std::cout << "Error: no argument given.." << std::endl;
+// 		return (1);
+// 	}
+// 	equation = av[1];
+// 	prepare_equation(equation);
 
-	if (!valid_chars(equation.c_str()))
-		return 1;
-	left_side = equation.substr(0, equation.find("="));
-	right_side = equation.substr(equation.find("=") + 1, equation.length() - equation.find("=") - 1);
-	if (right_side.find(" ") == 0)
-		right_side = right_side.substr(1, right_side.length() - 1);
-	if (!check_sides(left_side, right_side))
-		return 1;
-	left = create_liste(left_side);
-	if (left == NULL)
-		return 1;
-	right = create_liste(right_side);
-	if (right == NULL)
-	{
-		delete_liste(left);
-		return 1;
-	}
-	simplify_equation(left, right);
+// 	if (!valid_chars(equation.c_str()))
+// 		return 1;
+// 	left_side = equation.substr(0, equation.find("="));
+// 	right_side = equation.substr(equation.find("=") + 1, equation.length() - equation.find("=") - 1);
+// 	if (right_side.find(" ") == 0)
+// 		right_side = right_side.substr(1, right_side.length() - 1);
+// 	if (!check_sides(left_side, right_side))
+// 		return 1;
+// 	left = create_liste(left_side);
+// 	if (left == NULL)
+// 		return 1;
+// 	right = create_liste(right_side);
+// 	if (right == NULL)
+// 	{
+// 		delete_liste(left);
+// 		return 1;
+// 	}
+// 	simplify_equation(left, right);
 
-	switch (reduce_form(left))
-	{
-	case 0:
-		solve_X0(left);
-		break;
-	case 1:
-		solve_X1(left);
-		break;
-	case 2:
-		solve_X2(left);
-		break;
-	default:
-		break;
-	}
-	delete_liste(left);
+// 	switch (reduce_form(left))
+// 	{
+// 	case 0:
+// 		solve_X0(left);
+// 		break;
+// 	case 1:
+// 		solve_X1(left);
+// 		break;
+// 	case 2:
+// 		solve_X2(left);
+// 		break;
+// 	default:
+// 		break;
+// 	}
+// 	delete_liste(left);
 
 	return 0;
 }

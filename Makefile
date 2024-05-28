@@ -1,10 +1,10 @@
 NAME = computor
 
-SRCS = computor.cpp
+SRCS = computor.cpp liste.cpp utils.cpp
 
 OBJS	= ${SRCS:.cpp=.o}
 
-FLAGS = #-Wall -Wextra -Werror -I -std=c++98
+FLAGS = -Wall -Wextra -Werror -I -std=c++98
 
 all :	${NAME}
 

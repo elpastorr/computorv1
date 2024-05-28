@@ -160,7 +160,7 @@ void	solve_X1(Liste *equation)
 	std::cout << "aX + b; a = " << a << " b = " << b << "; X = -b / a" << std::endl;
 	std::cout << "The solution is:" << std::endl;
 	if (b == 0)
-		x = 0;
+		std::cout << 0 << std::endl;
 	else
 	{
 		x = -b / a;

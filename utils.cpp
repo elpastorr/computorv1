@@ -128,16 +128,42 @@ void	prepare_equation(std::string &raw)
 	raw.erase(std::remove(raw.begin(), raw.end(), ' '), raw.end());
 	replace_all(raw, "+", " +");
 	replace_all(raw, "-", " -");
+	replace_all(raw, "x", "X");
+
 	if (raw.find(" ") == 0)
 		raw.erase(std::remove(raw.begin(), raw.begin() + 1, ' '), raw.begin() + 1);
 }
 
 bool	check_sides(std::string left, std::string right)
 {
-	if ((left.find("^") != std::string::npos && !isdigit(left[left.find("^") + 1])) || (right.find("^") != std::string::npos && !isdigit(right[right.find("^") + 1])))
+	while (left.length() != 0)
 	{
-		std::cout << "Error: Invalid input, no exposant after '^'" << std::endl;
-		return false;
+		if (left.find("^") != std::string::npos && !isdigit(left[left.find("^") + 1]))
+		{
+			std::cout << "Error: Invalid input, no exposant after '^'" << std::endl;
+			return false;
+		}
+		if (left.find("X") != std::string::npos && left[left.find("X") + 1] != '^' && left[left.find("X") + 1] && left[left.find("X") + 1] != ' ')
+		{
+			std::cout << "Error: Invalid input, invalid char after X" << std::endl;
+			return false;
+		}
+		left = left.substr(left.find("^") + 1, left.length() - 1);
+	}
+
+	while (right.length() != 0)
+	{
+		if (right.find("^") != std::string::npos && !isdigit(right[right.find("^") + 1]))
+		{
+			std::cout << "Error: Invalid input, no exposant after '^'" << std::endl;
+			return false;
+		}
+		if (right.find("X") != std::string::npos && right[right.find("X") + 1] != '^' && right[right.find("X") + 1] && right[right.find("X") + 1] != ' ')
+		{
+			std::cout << "Error: Invalid input, invalid char after X" << std::endl;
+			return false;
+		}
+		right = right.substr(right.find("^") + 1, right.length() - 1);
 	}
 	return true;
 }

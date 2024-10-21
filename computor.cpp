@@ -73,7 +73,7 @@ int	print_reduced_form(Liste *equation)
 			}
 			if (current->next != NULL)
 			{
-				if (current->next->coeff > 0)
+				if (current->next->coeff >= 0)
 				{
 					std::cout << " + ";
 					neg_coeff = false;
@@ -153,7 +153,7 @@ void	solve_X1(Liste *equation)
 	{
 		if (current->exposant == 1)
 			a = current->coeff;
-		else
+		else if (current->exposant == 0)
 			b = current->coeff;
 		current = current->next;
 	}
@@ -196,7 +196,7 @@ void	solve_X2(Liste *equation)
 			b = current->coeff;
 			b_set = true;
 		}
-		else
+		else if (current->exposant == 0)
 		{
 			c = current->coeff;
 			c_set = true;
@@ -239,7 +239,9 @@ void	solve_X2(Liste *equation)
 		if (b == 0)
 			x1 = 0;
 		else
-			x1 = -b / a;
+			x1 = -b / (2 * a);
+		std::cout << "Discriminant is strictly null: X = -b / 2a" << std::endl;
+
 		std::cout << "The solution is:" << std::endl;
 		if (is_whole(x1) || !is_whole(a) || !is_whole(b))
 			std::cout << x1 << std::endl;
@@ -254,7 +256,10 @@ void	solve_X2(Liste *equation)
 		sqrt = static_cast<float>(ft_sqrt(static_cast<double>(-delta)));
 		std::cout << "sqrt(delta) = " << sqrt << "i" << std::endl;
 		std::cout << "Discriminant is strictly negative, the two complex solutions are:" << std::endl;
-		print_complex(a, -b, sqrt);
+		if (b != 0)
+			print_complex(a, -b, sqrt);
+		else
+			print_complex(a, b, sqrt);
 	}
 }
 
@@ -273,7 +278,6 @@ int	main(int ac, char **av)
 	}
 	equation = av[1];
 	prepare_equation(equation);
-
 	if (!valid_chars(equation.c_str()))
 		return 1;
 	left_side = equation.substr(0, equation.find("="));
